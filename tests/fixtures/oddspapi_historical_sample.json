@@ -1,0 +1,17 @@
+{
+  "id1000001": {
+    "bookmakers": {
+      "pinnacle": {"markets": {"101": {"outcomes": {
+        "101": {"players": {"0": [
+          {"createdAt": "2025-08-15T10:00:00+00:00", "price": 2.10, "limit": 1500, "active": true, "exchangeMeta": null},
+          {"createdAt": "2025-08-15T17:30:00+00:00", "price": 2.05, "limit": 3000, "active": true, "exchangeMeta": null},
+          {"createdAt": "2025-08-15T18:55:00+00:00", "price": 2.15, "limit": 5000, "active": true, "exchangeMeta": null}
+        ]}}}}}},
+      "winamax.es": {"markets": {"5001": {"outcomes": {
+        "5002": {"players": {"77": [
+          {"createdAt": "2025-08-15T09:00:00+00:00", "price": 1.80, "limit": null, "active": true, "exchangeMeta": null},
+          {"createdAt": "2025-08-15T18:10:00+00:00", "price": 1.65, "limit": null, "active": true, "exchangeMeta": null}
+        ]}}}}}}
+    }
+  }
+}

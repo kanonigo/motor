@@ -1,0 +1,169 @@
+# Mercados objetivo de F0 y reglas de liquidación por casa.
+# Ningún mercado se usa en el scanner mientras alguna casa lo tenga con verified: false.
+# Valores TODO_VERIFICAR: leerlos en las reglas de la casa (casas.yaml -> rules_url) y anotar la fuente.
+# Las sim_variable siguen la definición Opta de bet365 (casa principal).
+# Reglas generales leídas el 2026-10-14; falta el detalle por mercado (ver notes).
+
+bet365_player: &bet365_player
+  data_provider: "Opta; si no cubre la competición, web oficial de la competición"
+  regular_time_only: false                 # mercados de jugador incluyen prórroga si se juega (irrelevante en liga)
+  void_if_player_not_playing: true         # anulada si no participa desde el inicio
+  void_if_player_sub_on: true              # suplente que entra = no participa desde el inicio -> nula
+  substitute_rule: TODO_VERIFICAR          # Sustituto+ (remates, a puerta, entradas, faltas): ¿activo en bet365.es y en LaLiga?
+  stat_definition: TODO_VERIFICAR          # por mercado, ver notes
+  source: "https://help.bet365.es/s/es-es/sportsrules/soccer/match-statistics (2026-10-14)"
+  verified: false
+
+bet365_team: &bet365_team
+  data_provider: "Opta; si no cubre la competición, web oficial de la competición"
+  regular_time_only: true                  # estadísticas de partido y equipo: resultado a los 90 min
+  void_if_player_not_playing: false        # no aplica
+  void_if_player_sub_on: false             # no aplica
+  substitute_rule: none
+  stat_definition: TODO_VERIFICAR
+  source: "https://help.bet365.es/s/es-es/sportsrules/soccer/match-statistics (2026-10-14)"
+  verified: false
+
+winamax_player: &winamax_player
+  data_provider: "Estadísticas oficiales del organizador (LaLiga); Opta solo si el organizador no publica"
+  regular_time_only: true                  # tiempo reglamentario más descuento
+  void_if_player_not_playing: TODO_VERIFICAR   # la sección de fútbol no se pudo leer; en baloncesto anulan
+  void_if_player_sub_on: TODO_VERIFICAR
+  substitute_rule: "garantia_sustituto"    # remates, a puerta y tarjeta de jugador; LaLiga elegible
+  stat_definition: TODO_VERIFICAR
+  source: "https://www.winamax.es/terminos-y-condiciones-apuestas-deportivas?LICENSE=ES ; https://www.winamax.es/garantia-sustituto (2026-10-14)"
+  verified: false
+
+winamax_team: &winamax_team
+  data_provider: "Estadísticas oficiales del organizador (LaLiga); Opta solo si el organizador no publica"
+  regular_time_only: true
+  void_if_player_not_playing: false
+  void_if_player_sub_on: false
+  substitute_rule: none
+  stat_definition: TODO_VERIFICAR
+  source: "https://www.winamax.es/terminos-y-condiciones-apuestas-deportivas?LICENSE=ES (2026-10-14)"
+  verified: false
+
+markets:
+  player_shots_on_target:
+    level: player
+    family: shots
+    sim_variable: player.SoT
+    lines: [0.5, 1.5, 2.5]
+    notes: "bet365: a puerta = goles + paradas + bloqueados por el último defensor; al palo = fuera. Coincide con SoT = G + Sv + DL (Ley 2). Pendiente: penaltis y definición de LaLiga para Winamax."
+    settlement:
+      bet365:
+        <<: *bet365_player
+        substitute_rule: "sustituto_plus"   # TODO_VERIFICAR cómo se combinan jugador y sustituto (el ejemplo de goles sugiere suma)
+        stat_definition: "Opta: a puerta = gol, parada o bloqueo del último defensor; al palo sin gol = fuera. Pendiente: penaltis."
+        source: "https://help.bet365.es/s/es-es/sportsrules/soccer/match-statistics (2026-10-14); Sustituto+ visto por Iñaki en LaLiga (2026-10-14)"
+        verified: false
+      winamax: *winamax_player
+
+  player_shots:
+    level: player
+    family: shots
+    sim_variable: player.Shots
+    lines: [0.5, 1.5, 2.5, 3.5]
+    notes: "bet365: remate = intento deliberado de marcar; cuenta el bloqueado por un defensa con otros defensas o el portero detrás. Pendiente: penaltis."
+    settlement:
+      bet365:
+        <<: *bet365_player
+        substitute_rule: "sustituto_plus"   # TODO_VERIFICAR cómo se combinan jugador y sustituto (el ejemplo de goles sugiere suma)
+        stat_definition: "Opta: intento deliberado de marcar; cuenta el bloqueado por un defensa con otros defensas o el portero detrás. Pendiente: penaltis."
+        source: "https://help.bet365.es/s/es-es/sportsrules/soccer/match-statistics (2026-10-14); Sustituto+ visto por Iñaki en LaLiga (2026-10-14)"
+        verified: false
+      winamax: *winamax_player
+
+  goalkeeper_saves:
+    level: player
+    family: saves
+    sim_variable: player.Saves
+    lines: [1.5, 2.5, 3.5, 4.5]
+    notes: "bet365: parada = el portero detiene un intento deliberado del rival; también cuentan remates desviados de su propio equipo hacia su puerta (rompe Sv = SoT_rival − G − DL; cuantificar). Pendiente: penalti parado y Winamax."
+    settlement:
+      bet365:
+        <<: *bet365_player
+        substitute_rule: none   # Sustituto+ no lista paradas (fuente secundaria: goal.com); confirmar en el boleto
+        stat_definition: "Opta: el portero detiene con cualquier parte del cuerpo un intento deliberado del rival; incluye remates desviados de su propio equipo hacia su puerta. Pendiente: penalti parado."
+        source: "https://help.bet365.es/s/es-es/sportsrules/soccer/match-statistics (2026-10-14)"
+        verified: false
+      winamax: *winamax_player
+
+  player_fouls_committed:
+    level: player
+    family: fouls
+    sim_variable: player.FoulsCommitted
+    lines: [0.5, 1.5, 2.5]
+    notes: "bet365: falta = infracción sancionada con tiro libre o penalti; el fuera de juego no cuenta; ley de la ventaja con solo tarjeta no cuenta. Pendiente: manos (faltas sin víctima, Ley 1) y Winamax."
+    settlement:
+      bet365:
+        <<: *bet365_player
+        substitute_rule: "sustituto_plus"   # TODO_VERIFICAR cómo se combinan jugador y sustituto (el ejemplo de goles sugiere suma)
+        stat_definition: "Opta: infracción sancionada con tiro libre o penalti; no cuenta el fuera de juego ni la ventaja con solo tarjeta."
+        source: "https://help.bet365.es/s/es-es/sportsrules/soccer/match-statistics (2026-10-14); Sustituto+ visto por Iñaki en LaLiga (2026-10-14)"
+        verified: false
+      winamax: *winamax_player
+
+  team_corners:
+    level: team
+    family: corners
+    sim_variable: team.Corners
+    lines: [3.5, 4.5, 5.5, 6.5]
+    notes: "bet365: solo córners efectuados. Pendiente: regla de Winamax."
+    settlement:
+      bet365:
+        <<: *bet365_team
+        data_provider: "No especificado en las reglas de córners; Opta según las reglas de estadísticas"
+        stat_definition: "Córners efectuados (no cuentan los otorgados sin lanzar; un córner repetido cuenta una vez). 90 min."
+        source: "https://help.bet365.es/s/es-es/sportsrules/soccer/corner-markets (2026-10-14)"
+        verified: true
+
+      winamax: *winamax_team
+
+  match_corners:
+    level: match
+    family: corners
+    sim_variable: match.Corners
+    lines: [8.5, 9.5, 10.5, 11.5]
+    settlement:
+      bet365:
+        <<: *bet365_team
+        data_provider: "No especificado en las reglas de córners; Opta según las reglas de estadísticas"
+        stat_definition: "Córners efectuados (no cuentan los otorgados sin lanzar; un córner repetido cuenta una vez). 90 min."
+        source: "https://help.bet365.es/s/es-es/sportsrules/soccer/corner-markets (2026-10-14)"
+        verified: true
+
+      winamax: *winamax_team
+
+  match_cards:
+    level: match
+    family: cards
+    sim_variable: match.CardPoints   # Y + 2R con la segunda amarilla descartada (regla bet365)
+    lines: [3.5, 4.5, 5.5]
+    notes: "bet365 cuenta puntos, no tarjetas: el simulador debe distinguir roja directa (2) de doble amarilla (1 + 2). Pendiente: regla de Winamax."
+    settlement:
+      bet365:
+        <<: *bet365_team
+        data_provider: "No especificado en las reglas de tarjetas"
+        stat_definition: "Amarilla = 1, roja = 2; la segunda amarilla se descarta (expulsión por doble amarilla = 3). Excluye no participantes (banquillo, técnicos, sustituidos) y tarjetas tras el pitido final. 90 min."
+        source: "https://help.bet365.es/s/es-es/sportsrules/soccer/card-markets (2026-10-14)"
+        verified: true
+
+      winamax: *winamax_team
+
+  player_booked:
+    level: player
+    family: cards
+    sim_variable: player.Booked
+    lines: [0.5]
+    notes: "¿Cuenta una tarjeta mostrada en el banquillo o tras el pitido final?"
+    settlement:
+      bet365:
+        <<: *bet365_player
+        substitute_rule: none
+        stat_definition: "Anulada si no participa desde el inicio. La tarjeta mostrada a un suplente solo cuenta si después entra. No cuentan tarjetas tras el final del partido."
+        source: "https://help.bet365.es/s/es-es/sportsrules/soccer/player-performance-markets (2026-10-14)"
+        verified: false   # falta confirmar si Sustituto+ o la mitad del descanso cambian algo
+
+      winamax: *winamax_player
