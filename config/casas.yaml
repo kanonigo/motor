@@ -1,0 +1,20 @@
+# Casas usadas por el proyecto. Slugs de OddsPapi.
+# Decisión 2026-10-14: el motor se construye contra bet365. La definición canónica de
+# cada estadística es la de bet365 (Opta). Winamax es secundaria: sus mercados solo
+# entran en el scanner tras medir la diferencia entre Opta y los datos oficiales de LaLiga.
+primary_house: bet365
+reference_stats: opta
+sharp:
+  pinnacle:
+    oddspapi_slug: pinnacle
+    role: anclaje y CLV (sección 5 de la especificación)
+soft:
+  bet365:
+    oddspapi_slug: bet365        # TODO_VERIFICAR: comprobar si OddsPapi tiene un slug propio para bet365.es y si sus precios coinciden
+    licencia_dgoj: true
+    rules_url: TODO_VERIFICAR    # reglas de fútbol de bet365.es
+  winamax:
+    secondary: true
+    oddspapi_slug: winamax.es    # confirmado en la ficha de OddsPapi (2026-10-14)
+    licencia_dgoj: true
+    rules_url: TODO_VERIFICAR    # reglas de fútbol de winamax.es

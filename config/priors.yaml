@@ -1,0 +1,18 @@
+# Priors provisionales con fuente. Se sustituyen al recalibrar con datos de definición Opta.
+
+corners:
+  # P(córner a favor del rematador | resultado del remate). Media posterior Beta(1,1), IC 90 %.
+  # Fuente: StatsBomb Open Data, LaLiga 2015/16 completa (380 partidos, 9.168 remates),
+  # motor.priors.corners. Heurística: el siguiente pase o remate es un córner del mismo
+  # equipo en menos de 60 s y en la misma parte.
+  pi_c_given_blocked: {mean: 0.252, ci90: [0.236, 0.268], n: 2036}
+  pi_c_given_saved: {mean: 0.201, ci90: [0.187, 0.215], n: 2249}
+  pi_c_given_dl: {mean: 0.213, ci90: [0.123, 0.317], n: 45}
+  pi_c_given_off: {mean: 0.008, ci90: [0.006, 0.010], n: 3824}
+  # C^otros por equipo y partido (córners no derivados de un remate)
+  other_per_team_match: {mean: 3.74, var_over_mean: 1.52}
+  share_from_shots: 0.261
+  caveats:
+    - "Definición StatsBomb, no Opta: los bloqueos del último defensor (a puerta en bet365) son 'Blocked' en StatsBomb salvo save_block."
+    - "Una sola temporada y antigua (2015/16): TODO_CALIBRAR con datos recientes de definición Opta."
+    - "var/media de C^otros mezcla sobredispersión dentro del partido y diferencias entre equipos."

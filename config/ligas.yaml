@@ -1,0 +1,8 @@
+# Ligas activas. Solo LaLiga en F0 (decisión 2026-10-14).
+laliga:
+  name: LaLiga EA Sports
+  football_data_code: SP1          # código de football-data.co.uk
+  seasons: ["2223", "2324", "2425", "2526", "2627"]   # 2627 = temporada en curso
+  oddspapi_tournament_id: TODO_VERIFICAR   # sacarlo de GET /v4/tournaments?sportId=10
+  oddspapi_sport_id: 10                    # fútbol según el ejemplo de la documentación
+  statsbomb_competition_id: 11             # LaLiga en StatsBomb Open Data (temporadas antiguas)
